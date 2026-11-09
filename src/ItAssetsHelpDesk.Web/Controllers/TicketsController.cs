@@ -53,7 +53,7 @@ public class TicketsController : Controller
         {
             var itStaff = await _userManager.GetUsersInRoleAsync(AppRoles.ITStaff);
             ViewBag.ItStaffOptions = itStaff.OrderBy(u => u.FullName)
-                .Select(u => new SelectListItem(u.FullName, u.Id))
+                .Select(u => new SelectListItem(u.FullName, u.Id) { Selected = u.Id == ticket.AssignedToUserId })
                 .ToList();
         }
 

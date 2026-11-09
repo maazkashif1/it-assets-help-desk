@@ -1,0 +1,36 @@
+@using ItAssetsHelpDesk.Web.Models.Enums
+@model ItAssetsHelpDesk.Web.ViewModels.TicketFormViewModel
+@{
+    ViewData["Title"] = "New Ticket";
+}
+
+<h1>New IT Request</h1>
+<form asp-action="Create" method="post" class="col-md-8">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Priority" class="form-label"></label>
+        <select asp-for="Priority" asp-items="Html.GetEnumSelectList<TicketPriority>()" class="form-select"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="RelatedAssetId" class="form-label"></label>
+        <select asp-for="RelatedAssetId" asp-items="Model.AssetOptions" class="form-select">
+            <option value="">None</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Ticket</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
