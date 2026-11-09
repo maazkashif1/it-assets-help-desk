@@ -70,7 +70,7 @@
         if (!expiryDate) return '<span class="text-muted">&mdash;</span>';
         const days = Math.ceil((new Date(expiryDate) - new Date()) / 86400000);
         const cls = days < 0 ? 'text-danger fw-bold' : (days <= 30 ? 'text-warning fw-bold' : '');
-        const label = new Date(expiryDate).toLocaleDateString();
+        const label = new Date(expiryDate).toLocaleDateString('en-US');
         return `<span class="${cls}">${label}</span>`;
     }
 
@@ -87,7 +87,7 @@
                 <td>${badge(a.status)}</td>
                 <td>${a.departmentName ?? ''}</td>
                 <td>${a.assignedToUserName ?? '<span class="text-muted">Unassigned</span>'}</td>
-                <td>$${Number(a.purchaseCost).toLocaleString()}</td>
+                <td>$${Number(a.purchaseCost).toLocaleString('en-US')}</td>
                 <td>${expiryCell(a.expiryDate)}</td>
                 <td class="text-end">
                     ${canManage ? `<a class="btn btn-sm btn-outline-secondary" href="/Assets/Edit/${a.id}">Edit</a>` : ''}

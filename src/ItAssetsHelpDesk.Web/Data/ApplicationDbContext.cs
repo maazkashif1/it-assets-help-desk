@@ -172,6 +172,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         {
             var name = property.Metadata.Name;
             if (SensitiveProperties.Contains(name)) continue;
+            // Primary key is already captured in the EntityId column; for a
+            // new row EF only assigns the real value after SaveChanges.
+            if (property.Metadata.IsPrimaryKey()) continue;
             if (action == AuditAction.Update && !property.IsModified) continue;
 
             values[name] = action == AuditAction.Update

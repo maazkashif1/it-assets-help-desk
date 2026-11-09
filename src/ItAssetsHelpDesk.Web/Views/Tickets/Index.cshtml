@@ -91,7 +91,7 @@
                 <td>${statusControl(t)}</td>
                 <td>${t.departmentName}</td>
                 ${isManager ? `<td>${assigneeControl(t)}</td>` : ''}
-                <td>${new Date(t.createdAt).toLocaleString()}</td>
+                <td>${new Date(t.createdAt).toLocaleString('en-US')}</td>
                 <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="/Tickets/Details/${t.id}">View</a></td>
             </tr>`).join('');
         $('#ticketRows').html(rows);

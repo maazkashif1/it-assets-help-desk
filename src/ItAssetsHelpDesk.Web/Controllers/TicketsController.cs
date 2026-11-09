@@ -28,7 +28,8 @@ public class TicketsController : Controller
     {
         var itStaff = await _userManager.GetUsersInRoleAsync(AppRoles.ITStaff);
         ViewBag.ItStaffJson = JsonSerializer.Serialize(
-            itStaff.OrderBy(u => u.FullName).Select(u => new { u.Id, u.FullName }));
+            itStaff.OrderBy(u => u.FullName).Select(u => new { u.Id, u.FullName }),
+            new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
         ViewBag.IsManager = User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.ITStaff);
         return View();
     }
