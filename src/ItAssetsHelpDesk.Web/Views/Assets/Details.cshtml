@@ -1,0 +1,30 @@
+@using ItAssetsHelpDesk.Web.Models
+@using ItAssetsHelpDesk.Web.Models.Enums
+@model Asset
+@{
+    ViewData["Title"] = $"Asset {Model.AssetTag}";
+    var canManage = User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.ITStaff);
+}
+
+<h1>@Model.AssetTag <small class="text-muted">@Model.Name</small></h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@Model.Type</dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.Status</dd>
+    <dt class="col-sm-3">Serial Number</dt><dd class="col-sm-9">@(Model.SerialNumber ?? "—")</dd>
+    <dt class="col-sm-3">Department</dt><dd class="col-sm-9">@Model.Department?.Name</dd>
+    <dt class="col-sm-3">Assigned To</dt><dd class="col-sm-9">@(Model.AssignedToUser?.FullName ?? "Unassigned")</dd>
+    @if (Model.Type == AssetType.SoftwareLicense)
+    {
+        <dt class="col-sm-3">Seats</dt><dd class="col-sm-9">@Model.SeatsUsed / @Model.SeatsTotal</dd>
+    }
+    <dt class="col-sm-3">Purchase Cost</dt><dd class="col-sm-9">@Model.PurchaseCost.ToString("C")</dd>
+    <dt class="col-sm-3">Purchase Date</dt><dd class="col-sm-9">@Model.PurchaseDate.ToShortDateString()</dd>
+    <dt class="col-sm-3">Warranty / License Expiry</dt><dd class="col-sm-9">@(Model.ExpiryDate?.ToShortDateString() ?? "—")</dd>
+</dl>
+
+@if (canManage)
+{
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+}
+<a asp-action="Index" class="btn btn-secondary">Back to list</a>

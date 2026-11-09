@@ -1,0 +1,65 @@
+@using ItAssetsHelpDesk.Web.Models.Enums
+@model ItAssetsHelpDesk.Web.ViewModels.AssetFormViewModel
+
+<input type="hidden" asp-for="Id" />
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="AssetTag" class="form-label"></label>
+        <input asp-for="AssetTag" class="form-control" />
+        <span asp-validation-for="AssetTag" class="text-danger"></span>
+    </div>
+    <div class="col-md-8">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" asp-items="Html.GetEnumSelectList<AssetType>()" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="Status" class="form-label"></label>
+        <select asp-for="Status" asp-items="Html.GetEnumSelectList<AssetStatus>()" class="form-select"></select>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="DepartmentId" class="form-label"></label>
+        <select asp-for="DepartmentId" asp-items="Model.DepartmentOptions" class="form-select">
+            <option value="">Select...</option>
+        </select>
+        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+    </div>
+    <div class="col-md-3">
+        <label asp-for="AssignedToUserId" class="form-label"></label>
+        <select asp-for="AssignedToUserId" asp-items="Model.UserOptions" class="form-select">
+            <option value="">Unassigned</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SerialNumber" class="form-label"></label>
+        <input asp-for="SerialNumber" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SeatsTotal" class="form-label"></label>
+        <input asp-for="SeatsTotal" class="form-control" />
+        <div class="form-text">Software licenses only.</div>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="SeatsUsed" class="form-label"></label>
+        <input asp-for="SeatsUsed" class="form-control" />
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PurchaseCost" class="form-label"></label>
+        <input asp-for="PurchaseCost" class="form-control" />
+        <span asp-validation-for="PurchaseCost" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="PurchaseDate" class="form-label"></label>
+        <input asp-for="PurchaseDate" class="form-control" />
+        <span asp-validation-for="PurchaseDate" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="ExpiryDate" class="form-label"></label>
+        <input asp-for="ExpiryDate" class="form-control" />
+        <div class="form-text">Warranty expiry for hardware, license expiry for software.</div>
+    </div>
+</div>

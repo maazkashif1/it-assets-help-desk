@@ -1,0 +1,116 @@
+@using ItAssetsHelpDesk.Web.Models
+@model object
+@{
+    ViewData["Title"] = "Assets";
+    var departments = (List<Department>)ViewBag.Departments;
+    var canManage = User.IsInRole(AppRoles.Admin) || User.IsInRole(AppRoles.ITStaff);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Asset Register</h1>
+    @if (canManage)
+    {
+        <a asp-action="Create" class="btn btn-primary">+ New Asset</a>
+    }
+</div>
+
+<div class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" id="search" class="form-control" placeholder="Search by tag or name..." />
+    </div>
+    <div class="col-md-3">
+        <select id="typeFilter" class="form-select">
+            <option value="">All types</option>
+            <option value="Laptop">Laptop</option>
+            <option value="Printer">Printer</option>
+            <option value="NetworkGear">Network Gear</option>
+            <option value="SoftwareLicense">Software License</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select id="departmentFilter" class="form-select">
+            <option value="">All departments</option>
+            @foreach (var d in departments)
+            {
+                <option value="@d.Id">@d.Name</option>
+            }
+        </select>
+    </div>
+</div>
+
+<table class="table table-hover align-middle">
+    <thead>
+        <tr>
+            <th>Tag</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Department</th>
+            <th>Assigned To</th>
+            <th>Cost</th>
+            <th>Expiry</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody id="assetRows">
+        <tr><td colspan="9" class="text-center text-muted">Loading...</td></tr>
+    </tbody>
+</table>
+
+@section Scripts {
+<script>
+    const canManage = @Json.Serialize(canManage);
+
+    function badge(status) {
+        const map = { Active: 'success', InRepair: 'warning', Retired: 'secondary' };
+        return `<span class="badge bg-${map[status] ?? 'secondary'}">${status}</span>`;
+    }
+
+    function expiryCell(expiryDate) {
+        if (!expiryDate) return '<span class="text-muted">&mdash;</span>';
+        const days = Math.ceil((new Date(expiryDate) - new Date()) / 86400000);
+        const cls = days < 0 ? 'text-danger fw-bold' : (days <= 30 ? 'text-warning fw-bold' : '');
+        const label = new Date(expiryDate).toLocaleDateString();
+        return `<span class="${cls}">${label}</span>`;
+    }
+
+    function renderRows(assets) {
+        if (assets.length === 0) {
+            $('#assetRows').html('<tr><td colspan="9" class="text-center text-muted">No assets found.</td></tr>');
+            return;
+        }
+        const rows = assets.map(a => `
+            <tr>
+                <td><a href="/Assets/Details/${a.id}">${a.assetTag}</a></td>
+                <td>${a.name}</td>
+                <td>${a.type}</td>
+                <td>${badge(a.status)}</td>
+                <td>${a.departmentName ?? ''}</td>
+                <td>${a.assignedToUserName ?? '<span class="text-muted">Unassigned</span>'}</td>
+                <td>$${Number(a.purchaseCost).toLocaleString()}</td>
+                <td>${expiryCell(a.expiryDate)}</td>
+                <td class="text-end">
+                    ${canManage ? `<a class="btn btn-sm btn-outline-secondary" href="/Assets/Edit/${a.id}">Edit</a>` : ''}
+                </td>
+            </tr>`).join('');
+        $('#assetRows').html(rows);
+    }
+
+    function loadAssets() {
+        $.getJSON('/api/assets', {
+            search: $('#search').val(),
+            type: $('#typeFilter').val(),
+            departmentId: $('#departmentFilter').val()
+        }).done(renderRows);
+    }
+
+    let searchTimer;
+    $('#search').on('input', function () {
+        clearTimeout(searchTimer);
+        searchTimer = setTimeout(loadAssets, 250);
+    });
+    $('#typeFilter, #departmentFilter').on('change', loadAssets);
+
+    $(loadAssets);
+</script>
+}
