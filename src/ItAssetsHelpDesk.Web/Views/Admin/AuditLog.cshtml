@@ -1,0 +1,77 @@
+@using ItAssetsHelpDesk.Web.Models
+@using ItAssetsHelpDesk.Web.Models.Enums
+@model List<AuditLog>
+@{
+    ViewData["Title"] = "Audit Log";
+    var entityNames = (List<string>)ViewBag.EntityNames;
+    string? selectedEntityName = ViewBag.SelectedEntityName;
+    AuditAction? selectedAction = ViewBag.SelectedAction;
+    int page = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+    var actionColor = new Dictionary<AuditAction, string> { [AuditAction.Create] = "success", [AuditAction.Update] = "info", [AuditAction.Delete] = "danger" };
+}
+
+<h1 class="mb-4">Audit Log</h1>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-3">
+        <select name="entityName" class="form-select" onchange="this.form.submit()">
+            <option value="">All entities</option>
+            @foreach (var name in entityNames)
+            {
+                <option value="@name" selected="@(name == selectedEntityName)">@name</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="action" class="form-select" onchange="this.form.submit()">
+            <option value="">All actions</option>
+            @foreach (var a in Enum.GetValues<AuditAction>())
+            {
+                <option value="@a" selected="@(a == selectedAction)">@a</option>
+            }
+        </select>
+    </div>
+</form>
+
+<table class="table table-sm table-hover">
+    <thead>
+        <tr><th>Timestamp (UTC)</th><th>User</th><th>Action</th><th>Entity</th><th>Entity Id</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var log in Model)
+        {
+            <tr>
+                <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>@log.UserName</td>
+                <td><span class="badge bg-@actionColor[log.Action]">@log.Action</span></td>
+                <td>@log.EntityName</td>
+                <td>@log.EntityId</td>
+                <td>
+                    <details>
+                        <summary class="text-muted">view</summary>
+                        <pre class="small mb-0">@log.Details</pre>
+                    </details>
+                </td>
+            </tr>
+        }
+        @if (!Model.Any())
+        {
+            <tr><td colspan="6" class="text-muted">No audit entries match the current filters.</td></tr>
+        }
+    </tbody>
+</table>
+
+@if (totalPages > 1)
+{
+    <nav>
+        <ul class="pagination">
+            @for (var p = 1; p <= totalPages; p++)
+            {
+                <li class="page-item @(p == page ? "active" : "")">
+                    <a class="page-link" asp-action="AuditLog" asp-route-page="@p" asp-route-entityName="@selectedEntityName" asp-route-action="@selectedAction">@p</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

@@ -1,0 +1,80 @@
+@model ItAssetsHelpDesk.Web.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var priorityColor = new Dictionary<string, string> { ["Low"] = "secondary", ["Medium"] = "info", ["High"] = "warning", ["Critical"] = "danger" };
+}
+
+<h1 class="mb-4">Dashboard</h1>
+
+<h5>Open Tickets by Priority</h5>
+<div class="row mb-4">
+    @foreach (var p in Model.OpenTicketsByPriority)
+    {
+        <div class="col-md-3 col-6 mb-3">
+            <div class="card text-center border-@priorityColor[p.Priority.ToString()]">
+                <div class="card-body">
+                    <h2 class="card-title">@p.Count</h2>
+                    <p class="card-text text-@priorityColor[p.Priority.ToString()]">@p.Priority</p>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.OpenTicketsByPriority.Any())
+    {
+        <div class="col-12 text-muted">No open tickets. 🎉</div>
+    }
+</div>
+
+<h5>Licenses &amp; Warranties Expiring in 30 Days</h5>
+<table class="table table-sm mb-4">
+    <thead><tr><th>Tag</th><th>Name</th><th>Department</th><th>Expires</th></tr></thead>
+    <tbody>
+        @foreach (var a in Model.ExpiringSoon)
+        {
+            var days = (a.ExpiryDate!.Value.Date - DateTime.UtcNow.Date).Days;
+            <tr>
+                <td><a asp-controller="Assets" asp-action="Details" asp-route-id="@a.Id">@a.AssetTag</a></td>
+                <td>@a.Name</td>
+                <td>@a.Department?.Name</td>
+                <td class="@(days < 0 ? "text-danger fw-bold" : "text-warning fw-bold")">
+                    @a.ExpiryDate.Value.ToShortDateString() (@(days < 0 ? "expired" : $"{days}d left"))
+                </td>
+            </tr>
+        }
+        @if (!Model.ExpiringSoon.Any())
+        {
+            <tr><td colspan="4" class="text-muted">Nothing expiring soon.</td></tr>
+        }
+    </tbody>
+</table>
+
+@if (Model.ShowFinancials)
+{
+    <div class="row">
+        <div class="col-md-6">
+            <h5>Assets per Department</h5>
+            <table class="table table-sm">
+                <thead><tr><th>Department</th><th>Assets</th></tr></thead>
+                <tbody>
+                    @foreach (var d in Model.AssetsPerDepartment)
+                    {
+                        <tr><td>@d.DepartmentName</td><td>@d.Count</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h5>Total Asset Cost per Department</h5>
+            <table class="table table-sm">
+                <thead><tr><th>Department</th><th>Assets</th><th>Total Cost</th></tr></thead>
+                <tbody>
+                    @foreach (var c in Model.CostByDepartment)
+                    {
+                        <tr><td>@c.DepartmentName</td><td>@c.AssetCount</td><td>@c.TotalCost.ToString("C")</td></tr>
+                    }
+                </tbody>
+            </table>
+            <p class="text-muted small">Via the <code>dbo.GetAssetCostByDepartment</code> stored procedure.</p>
+        </div>
+    </div>
+}
