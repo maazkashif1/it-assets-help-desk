@@ -83,7 +83,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(t => t.RelatedAssetId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Entity<DepartmentAssetCost>().HasNoKey().ToView(null);
+        builder.Entity<DepartmentAssetCost>(cost =>
+        {
+            cost.HasNoKey().ToView(null);
+            cost.Property(c => c.TotalCost).HasColumnType("decimal(18,2)");
+        });
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
