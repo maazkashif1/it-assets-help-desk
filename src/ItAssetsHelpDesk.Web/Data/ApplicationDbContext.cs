@@ -90,6 +90,28 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         });
     }
 
+    // DbContext.SaveChanges() forwards to this overload, so overriding it
+    // (rather than just SaveChangesAsync) means auditing/soft-delete can't
+    // be silently bypassed by a sync call.
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        var pendingAudits = CapturePendingAudits();
+
+        var result = base.SaveChanges(acceptAllChangesOnSuccess);
+
+        if (pendingAudits.Count > 0)
+        {
+            foreach (var (entry, audit) in pendingAudits)
+            {
+                audit.EntityId = GetPrimaryKeyValue(entry);
+                AuditLogs.Add(audit);
+            }
+            base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        return result;
+    }
+
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var pendingAudits = CapturePendingAudits();
